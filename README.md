@@ -1,71 +1,103 @@
-# terraform-scanner README
+# terraform-scanner
 
 This is the README for your extension "terraform-scanner". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## 🛡️ Module Version Policy Enforcement
 
-For example if there is an image subfolder under your extension project workspace:
+### 🔎 Automatic Scanning of Terraform Files
+- On file open, save, or workspace load, the extension scans all `*.tf` files.
+- It parses the files to extract **module names and versions**.
+- It compares these versions against a **policy file** fetched from a remote API (`http://localhost:8000/module-versions`).
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+### 🚨 Diagnostics in Editor
+- If a module uses a **prohibited version**, it highlights the line with an **Error Diagnostic**.
+- If a module uses a **deprecated version**, it highlights the line with a **Warning Diagnostic**.
+- This allows developers to catch violations directly in the editor.
 
 ---
 
-## Following extension guidelines
+## 📊 Combined Status Bar Indicator (Right Side)
+- A status bar item displays a **summary of policy violations**:
+    - ✅ All modules safe (Green checkmark)
+    - ⚠️ Deprecated versions found (Yellow warning)
+    - ❌ Prohibited versions found (Red error)
+- The status bar item updates dynamically as files are opened or edited.
+- Clicking this item opens a **webview** showing a full table of module policies.
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+---
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+## 📥 Fetch Policy from Remote Server
+- On extension activation, the extension fetches module policy data from:
+    - `http://localhost:8000/module-versions`
+- This data is **cached in memory** to avoid repeated calls.
+- On failure to fetch, the extension shows an error message.
 
-## Working with Markdown
+---
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+## 📂 Bulk Scan on Workspace Open
+- On workspace load, the extension scans **all Terraform files** (`**/*.tf`) in all folders.
+- This ensures the status bar is correctly initialized even if no file is manually opened yet.
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+---
 
-## For more information
+## 🌐 Policy Webview
+- A **webview panel** (HTML table) shows the full **prohibited and deprecated versions list**.
+- This allows developers to manually review the policy in one place.
+- The webview is accessible via:
+    - Clicking the combined status bar item
+    - Command palette: `Module Policy: Show Details`
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+---
 
-**Enjoy!**
+## 🔍 Git Integration - Staged Files Scan
+
+### 📄 Check Staged Files Before Commit
+- A dedicated **left-side status bar item** triggers a scan of **staged files**.
+- Only `*.tf` files in the staging area are scanned.
+- It reports (in the output terminal) whether each staged file contains:
+    - ✅ Safe modules
+    - ⚠️ Deprecated modules
+    - ❌ Prohibited modules
+
+### 📜 Output Terminal Reporting
+- The scan result is shown in a dedicated **Output Terminal**.
+- Example output:
+    ```
+    🔎 Scanning staged Terraform files for policy violations...
+    📄 main.tf
+        Line 12: Module 'xyz' uses prohibited version '2.0.0'
+        Line 34: Module 'abc' uses deprecated version '1.2.3'
+    ```
+- This makes policy violations visible **before commit**.
+
+---
+
+## ⚙️ Intelligent Status Bar Persistence
+- The **combined status bar item** (for prohibited/deprecated counts) does **not disappear** when:
+    - User opens the output terminal
+    - User triggers the staged files scan
+- The item only hides if no `.tf` file has been opened or all `.tf` files are closed.
+
+## 🚀 Setup and Development
+
+### Prerequisites
+- Node.js (latest LTS recommended)
+- VS Code
+- Git
+
+---
+
+### 📥 Clone the Repository
+```bash
+git clone <your-repo-url>
+cd terraform-scanner
+```
+
+---
+
+### 📦 Install Dependencies
+```bash
+npm install
+```
