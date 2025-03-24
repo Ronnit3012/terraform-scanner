@@ -5,7 +5,7 @@ import { handleFileEvent, clearDiagnostics } from './diagnostics';
 import { showModulePolicyDetails } from './webview';
 import { initializeGitScanner } from './gitScanner';
 
-export let cachedModuleVersions: Record<string, { prohibited: string[], deprecated: string[] }> | null = null;
+export let cachedModuleVersions: Record<string, Record<string, { status: 'invest' | 'divest' | 'prohibited' }>> | null = null;
 
 const MODULE_VERSIONS_API = "http://localhost:8000/module-versions";
 

@@ -20,12 +20,12 @@ export function initializeStatusBar(context: vscode.ExtensionContext) {
     statusBarItem.show();
 }
 
-export function updateStatusBar(prohibited: number, deprecated: number) {
-    if (prohibited === 0 && deprecated === 0) {
+export function updateStatusBar(prohibited: number, deprecated: number, moduleNotFoundCount: number, versionNotFoundCount: number) {
+    if (prohibited === 0 && deprecated === 0 && moduleNotFoundCount === 0 && versionNotFoundCount === 0) {
         statusBarItem.text = `$(check) All Modules Safe`;
         statusBarItem.tooltip = `All modules comply with policy.`;
         statusBarItem.color = new vscode.ThemeColor('terminal.ansiGreen');
-    } else {
+    } else if (prohibited + deprecated > 0){
         const parts = [];
         if (prohibited > 0) {
             parts.push(`$(error) ${prohibited} Prohibited`);
@@ -37,6 +37,10 @@ export function updateStatusBar(prohibited: number, deprecated: number) {
         }
         statusBarItem.text = parts.join('  ');
         statusBarItem.tooltip = `Click to view policy details for ${prohibited + deprecated} module(s).`;
+    } else {
+        statusBarItem.text = `$(warning) ${moduleNotFoundCount + versionNotFoundCount} Not Found`;
+        statusBarItem.tooltip = `Click to view policy details for ${moduleNotFoundCount + versionNotFoundCount} module(s).`;
+        statusBarItem.color = new vscode.ThemeColor('terminal.ansiRed');
     }
     statusBarItem.show();
 }

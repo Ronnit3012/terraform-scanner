@@ -93,14 +93,22 @@ export async function scanStagedFilesForModuleViolations() {
                 const policy = cachedModuleVersions?.[module.name];
 
                 if (!policy) {
-                    outputChannel.appendLine(`   ❓ Module '${module.name}' has no policy defined.`);
+                    // outputChannel.appendLine(`   ⚪ Line ${module.versionLine + 1}: Module '${module.name}' not found.`);
+                    outputChannel.appendLine(`   ❓ Line ${module.versionLine + 1}: Module '${module.name}' has no policy defined.`);
+                    fileSafe = false;
                     continue;
                 }
 
-                if (policy.prohibited.includes(module.version)) {
+                if (!policy[module.version]) {
+                    outputChannel.appendLine(`   ❗ Line ${module.versionLine + 1}: Version '${module.version}' for '${module.name}' not found.`);
+                    fileSafe = false;
+                    continue;
+                }
+
+                if (policy[module.version]?.status === 'prohibited') {
                     outputChannel.appendLine(`   ❌ Line ${module.versionLine + 1}: '${module.name}' uses prohibited version '${module.version}'.`);
                     fileSafe = false;
-                } else if (policy.deprecated.includes(module.version)) {
+                } else if (policy[module.version]?.status === 'divest') {
                     outputChannel.appendLine(`   ⚠️ Line ${module.versionLine + 1}: '${module.name}' uses deprecated version '${module.version}'.`);
                     fileSafe = false;
                 }

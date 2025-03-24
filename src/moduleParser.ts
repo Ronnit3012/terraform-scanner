@@ -19,6 +19,7 @@ export async function extractModuleVersionsWithLineNumbers(content: string) {
             }
         }
     }
+
     return modules;
 }
 
